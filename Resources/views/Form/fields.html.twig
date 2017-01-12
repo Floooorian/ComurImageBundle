@@ -55,7 +55,11 @@
                 {% endif %}
                 initializeImageManager('{{ form[name].vars.id }}', options);
                 // console.log('{{form[name].vars.id}} onclick');
-                $('#image_upload_modal').modal('show');
+                $('#image_upload_modal').modal({
+                    keyboard: false,
+                    show: true,
+                    backdrop: 'static'
+                });
             });
         });
         $('.select-image-button').mouseover(function(){

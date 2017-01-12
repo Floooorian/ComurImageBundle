@@ -1,22 +1,29 @@
 var galleries = {};
 
 $(function(){
-    $('.fileinput-button').click(function(event){ 
+    $('.fileinput-button').click(function(event){
         if( $( event.target ).is( "span" ) )
         {
             // console.log('click');
             $('#image_upload_file').click();
             event.stopPropagation();
             return false;
-        } 
+        }
     });
 
+    $('#image_upload_modal').on('hidden.bs.modal', function () {
+        $('#image_upload_modal ul.nav-pills li:first-child').addClass('active');
+        $('#image_upload_modal .tab-pane').addClass('hidden');
+        $('#image_upload_modal .tab-pane').removeClass('active');
+        $('#image_upload_modal .tab-pane:first-child').removeClass('hidden').addClass('active');
+        $('#image_upload_modal #image_file_upload_progress .progress-bar').css('width', 0);
+    });
 });
 
 function initializeImageManager(id, options){
-    
-    if((typeof options.uploadConfig.library == 'undefined' || options.uploadConfig.library) 
-        && typeof options.uploadConfig.libraryDir != 'undefined' 
+
+    if((typeof options.uploadConfig.library == 'undefined' || options.uploadConfig.library)
+        && typeof options.uploadConfig.libraryDir != 'undefined'
         && options.uploadConfig.libraryRoute != 'undefined'
         && (options.uploadConfig.showLibrary == 'undefined'
         || options.uploadConfig.showLibrary))
@@ -36,7 +43,7 @@ function initializeImageManager(id, options){
                     var now = new Date().getTime();
                     $('#existing-images').append('<div class="image-container" data-src="'+files[i]+'"><img src="/'+options.uploadConfig.webDir + '/'+response['thumbsDir']+'/'+files[i]+'?'+now+'"/></div>');
                 };
-                
+
                 $('.image-container').click(function(){
                     $('#selected_image').val($(this).attr('data-src'));
                     initJCrop(id, options);
@@ -74,10 +81,10 @@ function initializeImageManager(id, options){
                 // console.log(data.result, data.result['image_upload_file']);
                 // $('#image_preview img').remove();
                 // $('#image_preview').html('<img src="/'+data.result['image_upload_file'][0].url+'" id="image_preview_image"/>');
-                $('#selected_image').val(data.result['image_upload_file'][0].name); 
+                $('#selected_image').val(data.result['image_upload_file'][0].name);
                 initJCrop(id, options);
             }
-            
+
         },
         progressall: function (e, data) {
             var progress = parseInt(data.loaded / data.total * 100, 10);
@@ -126,7 +133,7 @@ function initJCrop(id, options){
         $('#image_preview').html('<img src="/'+options.uploadConfig.webDir + '/'+$('#selected_image').val()+'?'+now+'" id="image_preview_image"/>');
         $('#image_preview img').load(function(){
 
-            
+
             $('#image_preview img').Jcrop({
                 // start off with jcrop-light class
                 bgOpacity: 0.8,
@@ -134,7 +141,7 @@ function initJCrop(id, options){
                 addClass: 'jcrop-dark',
                 aspectRatio: options.cropConfig.aspectRatio ? options.cropConfig.minWidth/options.cropConfig.minHeight : false ,
                 minSize: [ options.cropConfig.minWidth, options.cropConfig.minHeight ],
-                boxWidth: 600, 
+                boxWidth: 600,
                 boxHeight: 400,
                 onSelect: updateCoords
             },function(){
@@ -152,13 +159,13 @@ function initJCrop(id, options){
             }
             console.log(parseInt(($('#image_preview_image').width() - selectionWidth)/2),
                 parseInt(($('#image_preview_image').height() - selectionHeight)/2),
-                selectionWidth, 
+                selectionWidth,
                 selectionHeight);
 
             api.setSelect([
                 parseInt(($('#image_preview_image').width() - selectionWidth)/2),
                 parseInt(($('#image_preview_image').height() - selectionHeight)/2),
-                selectionWidth, 
+                selectionWidth,
                 selectionHeight
             ]);
             //$('#image_crop').addClass('hidden');
@@ -181,17 +188,17 @@ function cropImage(id, options){
         type: 'POST',
         data: {
             'config': JSON.stringify(options),
-            'imageName': $('#selected_image').val(), 
-            'x': c.x, 
-            'y': c.y, 
-            'w': c.w, 
+            'imageName': $('#selected_image').val(),
+            'x': c.x,
+            'y': c.y,
+            'w': c.w,
             'h': c.h
         },
         success: function(data){
             var data = $.parseJSON(data);
             var filename = data.filename;
             var previewSrc = data.previewSrc;
-            
+
             // console.log('crop success');
 
             if(typeof galleries[id] != 'undefined'){
@@ -206,7 +213,7 @@ function cropImage(id, options){
                 // console.log(options.uploadConfig.saveOriginal, $('#'+options.originalImageFieldId), options.originalImageFieldId);
                 if(options.uploadConfig.saveOriginal){
                     // console.log('set '+$('#selected_image').val());
-                    $('#'+options.originalImageFieldId).val($('#selected_image').val());                    
+                    $('#'+options.originalImageFieldId).val($('#selected_image').val());
                     $('#image_preview_image_'+id+' img').css('cursor: hand; cursor: pointer;');
                     $('#image_preview_image_'+id+' img').click(function(e){
                         if($( event.target ).is( "img" )){
@@ -218,7 +225,7 @@ function cropImage(id, options){
                 //$('#image_preview_image_'+id).html('<img src="/'+options.uploadConfig.webDir + '/' + $('#selected_image').val()+'?'+ new Date().getTime()+'" id="'+id+'_preview"/>');
                 $('#image_preview_'+id).removeClass('hide-disabled');
             }
-            
+
             destroyJCrop(id);
             $('#selected_image').val('');
             $('#image_preview').html('<p>Please select or upload an image</p>');
@@ -247,7 +254,7 @@ function addImageToGallery(filename, id, thumb, options)
 
 function removeImageFromGallery(filename, id)
 {
-    
+
     // ADD DELETE FILE HERE !
     $('#'+id).parent().remove();
     reorderItems(id);
@@ -267,7 +274,7 @@ function rebindGalleryRemove()
     $('.gallery-image-container span').unbind('click');
     $('.gallery-image-container span').click(function(){
         removeImageFromGallery($(this).parent().data('image'), $(this).parent().find('input').attr('id'));
-        return false; 
+        return false;
     });
 }
 
@@ -282,10 +289,10 @@ function destroyJCrop(){
 
 // function js_array_to_php_array (a)
 // This converts a javascript array to a string in PHP serialized format.
-// This is useful for passing arrays to PHP. On the PHP side you can 
+// This is useful for passing arrays to PHP. On the PHP side you can
 // unserialize this string from a cookie or request variable. For example,
 // assuming you used javascript to set a cookie called "php_array"
-// to the value of a javascript array then you can restore the cookie 
+// to the value of a javascript array then you can restore the cookie
 // from PHP like this:
 //    <?php
 //    session_start();
